@@ -9,23 +9,22 @@ public class Graph : MonoBehaviour
     [SerializeField] private Transform pointCube;
     
     [SerializeField,Range(10,200)] private int resolution = 10;
-    [SerializeField, Range(0, 2)] private int function = 0;
+
+    [SerializeField]
+    FunctionalLibrary.FunctionNames functions;
     
 
     private Transform[] _point;
     private void Awake()
     {
-        _point = new Transform[resolution];
+        _point = new Transform[resolution*resolution];
         
-        Vector3 position = Vector3.zero;
         float step = 2f / resolution;
         Vector3 scale = Vector3.one * step;
         for (int i = 0; i < _point.Length; i++)
         {
             Transform point = _point[i] = Instantiate(pointCube, transform, false);
-            position.x = (i + 0.5f) *step - 1f;
-            position.y = position.x;
-            point.localPosition = position;
+            
             point.localScale  = scale;
            
         }
@@ -33,24 +32,23 @@ public class Graph : MonoBehaviour
 
     private void Update()
     {
+        FunctionalLibrary.Function fun = FunctionalLibrary.GetFunction(functions);
+        
+        float step = 2f / resolution;
         var time = Time.time;
-        for (int i = 0; i < _point.Length; i++)
+        float v =  0.5f *step - 1f;
+        
+        for (int i = 0, x = 0, z = 0; i < _point.Length;x++, i++)
         {
-            Transform point = _point[i];
-            Vector3 position = point.localPosition;
-            if (function == 0)
+            if (x == resolution)
             {
-                position.y = FunctionalLibrary.Wave(position.x, time);
+                x = 0;
+                z += 1;
+                v = z + 0.5f * step - 1f;
             }
-            else if(function==1)
-            {
-                position.y = FunctionalLibrary.MultiWave(position.x, time);
-            }
-            else
-            {
-                position.y = FunctionalLibrary.Ripple(position.x, time);
-            }
-            point.localPosition = position;
+            
+            float u = (x + 0.5f) *step - 1f;
+            _point[i].localPosition = fun(u, v, time);
         }
     }
 }

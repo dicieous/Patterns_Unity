@@ -38,13 +38,13 @@ public class Graph : MonoBehaviour
         var time = Time.time;
         float v =  0.5f *step - 1f;
         
-        for (int i = 0, x = 0, z = 0; i < _point.Length;x++, i++)
+        for (int i = 0, x = 0, z = 0; i < _point.Length ; x++, i++)
         {
             if (x == resolution)
             {
                 x = 0;
                 z += 1;
-                v = z + 0.5f * step - 1f;
+                v = (z + 0.5f) * step - 1f;
             }
             
             float u = (x + 0.5f) *step - 1f;

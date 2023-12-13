@@ -5,12 +5,12 @@ public static class FunctionalLibrary
 {
     
     public delegate Vector3 Function(float u,float v, float t);
-
+    
     public enum FunctionNames
     {
-        Wave,MultiWave,Ripple
+        Wave,MultiWave,Ripple,Sphere
     }
-    private static Function[] _functions = { Wave, MultiWave, Ripple };
+    private static Function[] _functions = { Wave, MultiWave, Ripple, Sphere };
     
     public static Function GetFunction(FunctionNames names)
     {
@@ -40,12 +40,21 @@ public static class FunctionalLibrary
     
     static Vector3 Ripple(float u,float v,  float t)
     {
+        var d = Sqrt(u * u + v * v);
         Vector3 p;
         p.x = u;
-        var d = Sqrt(u * u + v * v);
         var y = Sin(PI * (4f*d - t));
         p.y = y / (1f + 10f * d);
         p.z = v;
+        return p;
+    }
+
+    static Vector3 Sphere(float u, float v, float t)
+    {
+        Vector3 p;
+        p.x = Sin(PI * u);
+        p.y = v;
+        p.z = Sin(PI * v);
         return p;
     }
 }

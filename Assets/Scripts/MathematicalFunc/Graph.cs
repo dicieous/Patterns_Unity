@@ -21,12 +21,13 @@ public class Graph : MonoBehaviour
         
         float step = 2f / resolution;
         Vector3 scale = Vector3.one * step;
+        
         for (int i = 0; i < _point.Length; i++)
         {
-            Transform point = _point[i] = Instantiate(pointCube, transform, false);
+            Transform point = _point[i] = Instantiate(pointCube);
             
             point.localScale  = scale;
-           
+            point.SetParent(transform, false);
         }
     }
 
@@ -36,18 +37,15 @@ public class Graph : MonoBehaviour
         
         float step = 2f / resolution;
         var time = Time.time;
-        float v =  0.5f *step - 1f;
+        float v =  0.5f * step - 1f;
         
-        for (int i = 0, x = 0, z = 0; i < _point.Length;x++, i++)
-        {
-            if (x == resolution)
-            {
+        for (int i = 0, x = 0, z = 0; i < _point.Length; i++, x++) {
+            if (x == resolution) {
                 x = 0;
                 z += 1;
-                v = z + 0.5f * step - 1f;
+                v = (z + 0.5f) * step - 1f;
             }
-            
-            float u = (x + 0.5f) *step - 1f;
+            float u = (x + 0.5f) * step - 1f;
             _point[i].localPosition = fun(u, v, time);
         }
     }

@@ -8,9 +8,13 @@ public static class FunctionalLibrary
 
     public enum FunctionNames
     {
-        Wave,MultiWave,Ripple
+        Wave,
+        MultiWave,
+        Ripple,
+        Sphere,
+        Torus
     }
-    private static Function[] _functions = { Wave, MultiWave, Ripple };
+    private static Function[] _functions = { Wave, MultiWave, Ripple, Sphere, Torus };
     
     public static Function GetFunction(FunctionNames names)
     {
@@ -43,9 +47,35 @@ public static class FunctionalLibrary
         Vector3 p;
         p.x = u;
         var d = Sqrt(u * u + v * v);
-        var y = Sin(PI * (4f*d - t));
-        p.y = y / (1f + 10f * d);
+        p.y = Sin(PI * (4f*d - t));
+        p.y /= (1f + 10f * d);
         p.z = v;
+        return p;
+    }
+
+    static Vector3 Sphere(float u, float v, float t)
+    {
+        var r = 0.9f + 0.1f * Sin(PI * (6f * u + 4f * v + t)); 
+        var s = r * Cos(0.5f * PI * v);
+        
+        Vector3 p;
+        p.x = s * Sin(PI * u);
+        p.y = r * Sin(PI * 0.5f * v);
+        p.z = s * Cos(PI * u);
+        return p;
+    }
+    
+    static Vector3 Torus(float u, float v, float t)
+    {
+        var r1 = 0.7f + 0.1f * Sin(PI * (6f * u + 0.5f * t));
+        var r2 = 0.15f + 0.05f * Sin(PI * (8f * u + 4f * v + 2f * t));
+        
+        float s = r1 + r2 * Cos(PI * v);
+        
+        Vector3 p;
+        p.x = s * Sin(PI * u);
+        p.y = r2 * Sin(PI * v);
+        p.z = s * Cos(PI * u);
         return p;
     }
 }

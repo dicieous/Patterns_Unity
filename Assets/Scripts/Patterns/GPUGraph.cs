@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class Graph : MonoBehaviour
+public class GPUGraph : MonoBehaviour
 {
-    [SerializeField] private Transform pointCube;
+
     
     [SerializeField,Range(10,200)] private int resolution = 10;
 
@@ -15,21 +15,6 @@ public class Graph : MonoBehaviour
     
 
     private Transform[] _point;
-    private void Awake()
-    {
-        _point = new Transform[resolution*resolution];
-        
-        float step = 2f / resolution;
-        Vector3 scale = Vector3.one * step;
-        
-        for (int i = 0; i < _point.Length; i++)
-        {
-            Transform point = _point[i] = Instantiate(pointCube);
-            
-            point.localScale  = scale;
-            point.SetParent(transform, false);
-        }
-    }
 
     private void Update()
     {

@@ -1,37 +1,113 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 
 public class GPUGraph : MonoBehaviour
 {
+    public enum TransitionMode
+    {
+        None,
+        Cycle,
+        Random,
+    }
 
-    
-    [SerializeField,Range(10,200)] private int resolution = 10;
+    private static readonly int
+        positionID = Shader.PropertyToID("_Positions"),
+        timeID = Shader.PropertyToID("_Time"),
+        resolutionID = Shader.PropertyToID("_Resolution"),
+        stepID = Shader.PropertyToID("_Step"),
+        transitionProgressID = Shader.PropertyToID("_TransitionProgress");
 
-    [SerializeField]
-    FunctionalLibrary.FunctionNames functions;
-    
+    [SerializeField] private ComputeShader computeShader;
+    [SerializeField] private Mesh patternObjMesh;
+    [SerializeField] private Material patternObjMaterial;
 
-    private Transform[] _point;
+    private const int MAX_RESOLUTION = 1000;
+    [SerializeField, Range(10, MAX_RESOLUTION)] private int resolution = 10;
+
+    [SerializeField] private FunctionalLibrary.FunctionNames function;
+    [SerializeField] private TransitionMode transitionMode;
+
+    [SerializeField, Min(0f)] float functionDuration = 2f, transitionDuration = 1f;
+
+    bool transitioning = false;
+    FunctionalLibrary.FunctionNames transitionFunction;
+
+    float duration = 0f;
+
+    private ComputeBuffer positionBuffer;
+
+
+    private void OnEnable()
+    {
+        positionBuffer = new ComputeBuffer(MAX_RESOLUTION * MAX_RESOLUTION, 3 * 4);
+    }
 
     private void Update()
     {
-        FunctionalLibrary.Function fun = FunctionalLibrary.GetFunction(functions);
+        duration += Time.deltaTime;
         
-        float step = 2f / resolution;
-        var time = Time.time;
-        float v =  0.5f * step - 1f;
-        
-        for (int i = 0, x = 0, z = 0; i < _point.Length; i++, x++) {
-            if (x == resolution) {
-                x = 0;
-                z += 1;
-                v = (z + 0.5f) * step - 1f;
+        if (duration >= transitionDuration)
+        {
+            if (transitioning)
+            {
+                duration -= functionDuration;
+                transitioning = false;
             }
-            float u = (x + 0.5f) * step - 1f;
-            _point[i].localPosition = fun(u, v, time);
+            else
+            {
+                duration -= functionDuration;
+                transitioning = true;
+                transitionFunction = function;
+                PickNextFunction();
+            }
         }
+
+        UpdateFunctionOnGPU();
+    }
+
+    private void UpdateFunctionOnGPU()
+    {
+        float step = 2f / resolution;
+        computeShader.SetInt(resolutionID, resolution);
+
+        computeShader.SetFloat(timeID, Time.time);
+        computeShader.SetFloat(stepID, step);
+        
+        if (transitioning) {
+            computeShader.SetFloat(
+                transitionProgressID,
+                Mathf.SmoothStep(0f, 1f, duration / transitionDuration)
+            );
+        }
+
+        var kernelIndex =
+            (int)function +
+            (int)(transitioning ? transitionFunction : function) *
+            FunctionalLibrary.FunctionsCount;
+        
+        computeShader.SetBuffer(kernelIndex, positionID, positionBuffer);
+
+        int groups = Mathf.CeilToInt(resolution / 8f);
+        computeShader.Dispatch(kernelIndex, groups, groups, 1);
+
+        patternObjMaterial.SetBuffer(positionID, positionBuffer);
+        patternObjMaterial.SetFloat(stepID, step);
+        
+        var bounds = new Bounds(Vector3.zero, Vector3.one * (2f + 2f / resolution));
+        Graphics.DrawMeshInstancedProcedural(patternObjMesh, 0, patternObjMaterial, bounds, resolution * resolution);
+    }
+
+    private void PickNextFunction()
+    {
+        function = transitionMode == TransitionMode.Cycle
+            ? FunctionalLibrary.GetNextFunctionName(function)
+            : FunctionalLibrary.GetRandomNameFunctionOtherThan(function);
+    }
+
+    private void OnDisable()
+    {
+        positionBuffer?.Release();
+        positionBuffer = null;
     }
 }

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Rendering;
 using static UnityEngine.Mathf;
 
 public static class FunctionalLibrary
@@ -17,10 +16,9 @@ public static class FunctionalLibrary
     }
     private static Function[] _functions = { Wave, MultiWave, Ripple, Sphere, Torus };
 
-    public static Function GetFunction(FunctionNames names)
-    {
-        return _functions[(int)names];
-    }
+    public static int FunctionsCount => _functions.Length;
+
+    public static Function GetFunction(FunctionNames names) => _functions[(int)names];
 
     public static FunctionNames GetNextFunctionName(FunctionNames name)
     {
@@ -28,10 +26,8 @@ public static class FunctionalLibrary
         {
             return name + 1;
         }
-        else
-        {
-            return 0;
-        }
+
+        return 0;
     }
 
     public static FunctionNames GetRandomNameFunctionOtherThan(FunctionNames name)

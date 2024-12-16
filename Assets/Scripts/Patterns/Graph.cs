@@ -1,9 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-
 
 public class Graph : MonoBehaviour
 {
@@ -72,7 +67,7 @@ public class Graph : MonoBehaviour
 
         if (transitioning)
         {
-            UpdateTrasitionFunction();
+            UpdateTransitionFunction();
         }
         else
         {
@@ -106,7 +101,7 @@ public class Graph : MonoBehaviour
         }
     }
 
-    private void UpdateTrasitionFunction()
+    private void UpdateTransitionFunction()
     {
         FunctionalLibrary.Function from = FunctionalLibrary.GetFunction(transitionFunction), to = FunctionalLibrary.GetFunction(function);
         float progress = duration / transitionDuration;

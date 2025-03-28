@@ -20,7 +20,7 @@ GPU-Based Cube Simulation Pattern project built with the Unity Engine.
 
 Demo GIF
 
-![Demo GIF](path/to/demo.gif)
+![Demo GIF](https://github.com/dicieous/Patterns_Unity/blob/191e41be63af045b85f5e82fae1f99e54dc351ef/Readme/ComputeShaderBasedWaveSimulation.gif)
 
 View the Full Demo Video [Here](https://drive.google.com/file/d/1whN9mT_hwB7dJoibLr11UZBc8qmEPfE5/view?usp=sharing)
 
